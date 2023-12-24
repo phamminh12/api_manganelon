@@ -225,14 +225,3 @@ def user_setting():
 			return jsonify(message="No information updated")
 
 	return jsonify(Error=form.errors), 400
-
-@app.route('/new-user', methods=['GET'])
-def new_user():
-	users = Users.query.order_by(Users.time_register.desc()).limit(50).all()
-	if users is None:
-		return jsonify(message="There are no registered users")
-	user_list = [{"id_user": user.id_user,
-			"email": user.email,
-			"time": user.time_register,
-		} for user in users]
-	return jsonify(user_list)

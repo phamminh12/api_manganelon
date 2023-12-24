@@ -1,12 +1,38 @@
 from main import *
 
+# @app.route("/manga/<path_segment_manga>/")
+# def get_manga(path_segment_manga):
+# 	manga = List_Manga.query.filter_by(path_segment_manga=path_segment_manga).first()
+
+# 	if manga is None:
+# 		return jsonify(msg="Manga does not exist!"), 404
+
+# 	localhost = split_join(request.url)
+# 	chapters = list_chapter(localhost, manga.id_manga ,path_segment_manga)
+
+# 	manga_info = {
+# 		"id_manga": manga.id_manga,
+# 		"title": manga.title_manga,
+# 		"description": manga.descript_manga,
+# 		"poster": manga.poster_original,
+# 		"categories": manga.categories,
+# 		"rate": manga.rate,
+# 		"views": manga.views_original,
+# 		"status": manga.status,
+# 		"author": manga.author,
+# 		"comments": get_comments(path_segment_manga),
+# 		"chapters": chapters
+# 	}
+
+# 	return jsonify(manga_info)
+
 @app.route("/manga/<path_segment_manga>/")
 def get_manga(path_segment_manga):
 	manga = List_Manga.query.filter_by(path_segment_manga=path_segment_manga).first()
 
 	if manga is None:
 		return jsonify(msg="Manga does not exist!"), 404
-
+	
 	localhost = split_join(request.url)
 	chapters = list_chapter(localhost, manga.id_manga ,path_segment_manga)
 
@@ -21,12 +47,50 @@ def get_manga(path_segment_manga):
 		"status": manga.status,
 		"author": manga.author,
 		"comments": get_comments(path_segment_manga),
-		"chapters": chapters
+		"chapters": chapters,
+		"server": manga.id_server,
 	}
+	server_list = list_server(path_segment_manga)
+	return jsonify(manga_info, server_list)
 
+def list_server(path_segment_manga):
+	server_list = []
+	result = List_Manga.query.filter_by(path_segment_manga=path_segment_manga).all()
+	
+	for server in result:
+		server_list.append({
+			'server': server.id_server
+			})
+
+	return server_list
+
+@app.route("/manga/<path_segment_manga>/<index>", methods=['GET'])
+def select_server(path_segment_manga, index):
+	server_list = list_server(path_segment_manga)
+	manga = List_Manga.query.filter_by(path_segment_manga=path_segment_manga, id_server=server_list[int(index)]['server']).first()
+	
+	if manga is None:
+		return jsonify(msg="Manga does not exist!"), 404
+	
+	localhost = split_join(request.url)
+	chapters = list_chapter(localhost, manga.id_manga ,path_segment_manga)
+
+	manga_info = {
+		"id_manga": manga.id_manga,
+		"title": manga.title_manga,
+		"description": manga.descript_manga,
+		"poster": manga.poster_original,
+		"categories": manga.categories,
+		"rate": manga.rate,
+		"views": manga.views_original,
+		"status": manga.status,
+		"author": manga.author,
+		"comments": get_comments(path_segment_manga),
+		"chapters": chapters,
+		"server": manga.id_server,
+	}
 	return jsonify(manga_info)
-
-
+	
 
 @app.route("/manga/<path_segment_manga>/<path_segment_chapter>/")
 def get_image_chapter(path_segment_manga, path_segment_chapter):

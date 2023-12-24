@@ -107,6 +107,16 @@ def see_all_anime_manga_news():
 def see_all_user_new():
 	return user_new(None)
 
+# @app.route('/new-user', methods=['GET'])
+# def new_user():
+# 	users = Users.query.order_by(Users.time_register.asc()).limit(50).all()
+# 	if users is None:
+# 		return jsonify(message="There are no registered users")
+# 	user_list = [{"id_user": user.id_user,
+# 			"email": user.email,
+# 			"time": user.time_register,
+# 		} for user in users]
+# 	return jsonify(user_list)
 
 @app.route("/rank_manga_week/")
 @cache.cached(timeout=600)
@@ -125,5 +135,35 @@ def see_all_rank_manga_month():
 def see_all_rank_manga_year():
 	return rank_manga_year(None)
 
+
+list_server = []
+@app.route("/all-server")
+def get_all_server():
+	result = List_Manga.query.all()
+	for manga in result:
+		if manga.id_server not in list_server:
+			list_server.append(manga.id_server)
+	return jsonify(list_server)
+
+
+@app.route("/server/<index>")
+def manga_of_server(index):
+	get_all_server()
+	result = List_Manga.query.filter_by(id_server=list_server[int(index)]).all()
+	manga_list = [{
+		"id_manga": manga.id_manga,
+		"title": manga.title_manga,
+		"description": manga.descript_manga,
+		"poster": manga.poster_original,
+		"categories": manga.categories,
+		"rate": manga.rate,
+		"views": manga.views_original,
+		"status": manga.status,
+		"author": manga.author,
+		# "comments": get_comments(path_segment_manga),
+		# "chapters": chapters,
+		"server": manga.id_server,
+	} for manga in result]
+	return jsonify(manga_list)
 
 
