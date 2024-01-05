@@ -53,6 +53,9 @@ def get_manga(path_segment_manga):
 	server_list = list_server(path_segment_manga)
 	return jsonify(manga_info, server_list)
 
+
+#-----------------------
+#get all server of manga
 def list_server(path_segment_manga):
 	server_list = []
 	result = List_Manga.query.filter_by(path_segment_manga=path_segment_manga).all()
@@ -64,7 +67,7 @@ def list_server(path_segment_manga):
 
 	return server_list
 
-@app.route("/manga/<path_segment_manga>/<index>", methods=['GET'])
+@app.route("/manga/<path_segment_manga>/server/<index>", methods=['GET'])
 def select_server(path_segment_manga, index):
 	server_list = list_server(path_segment_manga)
 	manga = List_Manga.query.filter_by(path_segment_manga=path_segment_manga, id_server=server_list[int(index)]['server']).first()
